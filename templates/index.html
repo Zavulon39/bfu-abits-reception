@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link rel="shortcut icon" href="/static/favicons.ico" type="image/x-icon" />
+    <title>Запись абитуриентов на очное собеседование</title>
+  </head>
+  <body>
+    <nav class="light-blue darken-3">
+      <div class="nav-wrapper" style="padding: 0 20px">
+        <a href="/" class="brand-logo">Запись абитуриентов</a>
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger"
+          ><i class="material-icons">menu</i></a
+        >
+        <ul class="right hide-on-med-and-down">
+          <li>
+            <a href="/add/"> Подать заявку </a>
+          </li>
+          <li>
+            <a href="https://abitstat.kantiana.ru/" target="_blank">
+              Пофамильные списки лиц, подавших документы в БФУ им. И. Канта
+            </a>
+          </li>
+          <li>
+            <a href="https://kantiana.ru/" target="_blank">БФУ имени Канта</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <ul class="sidenav" id="mobile-demo">
+      <li>
+        <a href="/add/"> Подать заявку </a>
+      </li>
+      <li>
+        <a href="https://abitstat.kantiana.ru/" target="_blank">
+          Пофамильные списки
+        </a>
+      </li>
+      <li>
+        <a href="https://kantiana.ru/" target="_blank">БФУ имени Канта</a>
+      </li>
+    </ul>
+
+    <div class="container">
+      <h4>Забронированные дата и время для очного собеседования абитуриента</h4>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      const container = document.querySelector('.container')
+
+      document.addEventListener('DOMContentLoaded', async () => {
+        var elems = document.querySelectorAll('.sidenav')
+        var instances = M.Sidenav.init(elems, {})
+
+        const resp = await fetch(location.origin + '/api/date/')
+        const data = await resp.json()
+
+        for (const el of data.date) {
+          const d = new Date(el.datetime)
+          container.innerHTML += createEl(
+            `${d.getDate() < 10 ? '0' : ''}${d.getDate()}.${
+              d.getMonth() < 10 ? '0' : ''
+            }${d.getMonth()}.${d.getFullYear()}`,
+
+            `${d.getHours() < 10 ? '0' : ''}${d.getHours()}:${
+              d.getMinutes() < 10 ? '0' : ''
+            }${d.getMinutes()}`
+          )
+        }
+      })
+
+      function createEl(date, time) {
+        return `
+        <div class="row">
+          <div class="col s3">
+            <div class="card-panel teal">
+              <span class="white-text">
+                <b>${date}</b> - 
+                <b>${time}</b> 
+              </span>
+            </div>
+          </div>
+        </div>
+        `
+      }
+    </script>
+  </body>
+</html>
