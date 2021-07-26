@@ -4,4 +4,5 @@ from pydantic import BaseModel
 
 class CreateSchema(BaseModel):
     fio: str
-    datetime: datetime.datetime
+    date: datetime.date
+    time: datetime.time

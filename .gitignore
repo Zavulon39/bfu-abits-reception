@@ -1,4 +1,5 @@
-TODO.py
 sqlite.db
 static/abits.xlsx
+static/abits.json
 env
+.idea

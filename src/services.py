@@ -1,19 +1,27 @@
 import datetime as dt
-import xlsxwriter
-
-idx = 0
+import json, xlsxwriter
 
 
-def write_table(fio: str, datetime: dt.datetime):
+def write_table(fio: str, date: dt.date, time: dt.time):
     try:
+        data = json.load(open('./static/abits.json', 'r'))
+        data.append({
+            'fio': fio,
+            'date': str(date),
+            'time': str(time)
+        })
+
         workbook = xlsxwriter.Workbook('./static/abits.xlsx')
         worksheet = workbook.add_worksheet()
 
-        worksheet.write(idx, 0, fio)
-        worksheet.write(idx, 1, f'{datetime.date()} {str(datetime.time()).split(".")[0]}')
+        for row, value in enumerate(data):
+            worksheet.write(row, 0, value['fio'])
+            worksheet.write(row, 1, value['date'])
+            worksheet.write(row, 2, value['time'])
 
         workbook.close()
+        json.dump(data, open('./static/abits.json', 'w'))
+
         return True
     except:
         return False
-

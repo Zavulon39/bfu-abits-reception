@@ -10,4 +10,5 @@ class SelectedDateModel(ormar.Model):
         database = database
 
     id: int = ormar.Integer(primary_key=True, autoincrement=True)
-    datetime: dt.datetime = ormar.DateTime(unique=True)
+    date: dt.date = ormar.Date(nullable=False)
+    time: dt.time = ormar.Time(nullable=False)

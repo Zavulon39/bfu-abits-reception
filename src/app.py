@@ -1,3 +1,4 @@
+import datetime as dt
 from fastapi import FastAPI, Request
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
@@ -29,28 +30,45 @@ async def shutdown() -> None:
 
 @app.get('/')
 async def index(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
+    data = await SelectedDateModel.objects.all()
+    arr = []
 
+    for i, d in enumerate(range(9, 32)):
+        time = []
+        date = dt.date(2021, 8, d)
 
-@app.get('/add/')
-async def add(request: Request):
-    return templates.TemplateResponse("add.html", {"request": request})
+        for t in range(9, 17):
+            start_time = dt.time(t, 0, 0)
+            end_time = dt.time(t + 1, 0, 0)
 
+            matches_num = len(list(filter(lambda el: el.time == start_time and el.date == date, data)))
 
-@app.get('/api/date/')
-async def get_date():
-    date = await SelectedDateModel.objects.all()
-    return {'date': date}
+            time.append({
+                'start_time': start_time,
+                'end_time': end_time,
+                'quantity': 10 - matches_num
+            })
+
+        arr.append({
+            'date': date,
+            'time': time
+        })
+
+    return templates.TemplateResponse("index.html", {"request": request, "arr": arr})
 
 
 @app.post('/api/add/')
 async def add_reception(data: CreateSchema):
+    global idx
     try:
+        await SelectedDateModel.objects.create(
+            date=data.date,
+            time=data.time
+        )
 
-        await SelectedDateModel.objects.create(datetime=data.datetime)
-        if not write_table(data.fio, data.datetime):
-            return {'success': False, 'detail': "Ошибка сервера"}
+        if write_table(data.fio, data.date, data.time):
+            return {'success': True}
 
-        return {'success': True}
-    except Exception as e:
-        return {'success': False, 'detail': "Это время уже забронировано"}
+        return {'success': False, 'detail': 'Ошибка сервера'}
+    except:
+        return {'success': False, 'detail': 'Ошибка сервера'}
