@@ -1,15 +1,16 @@
 import datetime as dt
-from fastapi import FastAPI, Request
+import json
+from fastapi import FastAPI, Request, HTTPException, status
 from fastapi.templating import Jinja2Templates
 from fastapi.staticfiles import StaticFiles
 from .db import database, metadata, engine
 from .models import SelectedDateModel
-from .schemas import CreateSchema
+from .schemas import CreateSchema, LoginSchema
 from .services import write_table
 
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-app.mount("/static", StaticFiles(directory="static"), name="static")
+# app.mount("/static", StaticFiles(directory="static"), name="static")
 app.state.database = database
 metadata.create_all(engine)
 
@@ -55,6 +56,20 @@ async def index(request: Request):
         })
 
     return templates.TemplateResponse("index.html", {"request": request, "arr": arr})
+
+
+@app.get('/receptions')
+async def receptions(request: Request):
+    return templates.TemplateResponse("receptions.html", {"request": request})
+
+
+@app.get('/api/get_json')
+async def get_json(login: str, password: str):
+    if login == '' and password == '':
+        with open('./static/abits.json', 'r') as file:
+            return json.load(file)
+
+    raise HTTPException(status.HTTP_401_UNAUTHORIZED)
 
 
 @app.post('/api/add/')
