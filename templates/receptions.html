@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link rel="shortcut icon" href="/static/favicons.ico" type="image/x-icon" />
+    <title>Запись абитуриентов на очное собеседование</title>
+  </head>
+  <body>
+    <div class="container">
+      <div class="input-field">
+        <input id="login" type="text" />
+        <label for="login">Введите логин</label>
+      </div>
+      <div class="input-field">
+        <input id="password" type="text" />
+        <label for="password">Введите пароль</label>
+        <button class="btn waves-effect waves-light light-blue darken-1">
+          Отправить
+        </button>
+      </div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+    <script>
+      document.querySelector('button').addEventListener('click', async () => {
+        const login = document.getElementById('login').value
+        const password = document.getElementById('password').value
+
+        const resp = await fetch(
+          location.origin +
+            '/api/get_json' +
+            `?login=${login}&password=${password}`
+        )
+        const data = await resp.json()
+
+        if (resp.ok) {
+          let table = `
+      <table>
+        <thead>
+          <tr>
+              <th>Имя</th>
+              <th>Дата</th>
+              <th>Время</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          `
+
+          data.forEach(el => {
+            table += `<tr>
+            <td>${el.fio}</td>
+            <td>${el.date}</td>
+            <td>${el.time}</td>
+          </tr>`
+          })
+
+          table += '</tbody></table>'
+
+          document.querySelector('.container').innerHTML += table
+        } else if (resp.status === 401) {
+          M.toast({
+            html: 'Неверный логин или пароль',
+            classes: 'red darken-4',
+          })
+        }
+      })
+    </script>
+  </body>
+</html>
